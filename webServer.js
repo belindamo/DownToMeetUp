@@ -254,12 +254,26 @@ app.get('/test/:p1', function (request, response) {
  * full calendar empty.
  */
 app.post('/meetUp', function(request, response) {
-
+  var cal = request.body;
+  console.log(cal);
+  MeetUp.create({name: cal.name, date_start: cal.startDate, date_end: cal.endDate, time_start: cal.startTime, time_end: cal.endTime}, function(err, newMeetUp) {
+                  if (err) {
+                    console.log("Error when creating meetUp");
+                    response.status(500).send(JSON.stringify(err));
+                    return;
+                  } else {
+                    newMeetUp.id = newMeetUp._id;
+                    console.log('Created MeetUp with ID ', newMeetUp.id);
+                    newMeetUp.save({}, function() {
+                      response.end(JSON.stringify(newMeetUp));
+                    });
+                  }
+                });
 });
 
 app.route('/meetUp/:id')
   .get(function(request, response) { //retrieve user's cal
-
+    console.log(request.params.id);
   })
   //update meetUp cal or other meetUp schema info (like name) besides userCals
   // FIX - not sure if this should be put vs post? tbd

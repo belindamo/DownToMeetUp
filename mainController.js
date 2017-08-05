@@ -9,42 +9,33 @@ dtmuApp.config(['$routeProvider',
         		templateUrl: 'mainTemplate.html',
         		controller: 'MainController'
         	}).
-        	when('/meetUp/:id', {
-        		templateUrl: 'components/meetUp.html',
+        	when('/meetUps/:meetUpId', {
+        		templateUrl: 'components/meetUp/meetUp.html',
         		controller: 'MeetUpController'
         	});
     }]);
 
-dtmuApp.controller('MainController', ['$scope', '$location', '$resource', 'ngDialog',
-		function ($scope, $location, $resource, ngDialog) {
+dtmuApp.controller('MainController', ['$scope', '$location', '$resource', 'ngDialog', '$rootScope',
+		function ($scope, $location, $resource, ngDialog, $rootScope) {
 			$scope.main = {};
-			$scope.main.FetchModel = function(url, doneCallback) {
-	            var xhr = new XMLHttpRequest();
+			$scope.main.info = {};
 
-	            var xhrHandler = function() {
-	                if (this.readyState !== 4) { // DONE
-	                    return;
-	                }
-	                if (this.status !== 200) { // OK
-	                    console.log("ERROR");
-	                    return;
-	                }
-	                var response = xhr.response;
-	                doneCallback(response);
-	            };
-
-	            xhr.responseType = "json";
-	            xhr.onreadystatechange = xhrHandler;
-	            xhr.open("GET", url);
-	            xhr.send();
-	        };
+			$scope.$on('newMeetUp', function(err, meetUp) {
+	        	$location.path("/meetUps/" + meetUp.id);
+	        });
 
 	        $scope.main.generate = function() {
+	        	$scope.main.info["startDate"] = startDate;
+	        	$scope.main.info["endDate"] = endDate;
+	        	$scope.main.info["startTime"] = $('#start').timepicker('getTime', startDate);
+	        	$scope.main.info["endTime"] = $('#end').timepicker('getTime', startDate);
+
 	        	var newMeetUpRes = $resource("/meetUp");
-	        	newMeetUpRes.save($scope.main, function(meetUp) {
-	        		$location.path("/meetUp/" + meetUp.id);
-	        	})
-	        }
+	        	newMeetUpRes.save($scope.main.info, function(meetUp) {
+	        		console.log(meetUp);
+	        		$rootScope.$broadcast('newMeetUp', meetUp);
+	        	});
+	        };
 
 	    // $scope.main.FetchModel("/", function() {});
 	}]);

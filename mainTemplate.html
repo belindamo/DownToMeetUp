@@ -26,6 +26,7 @@
 		<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 
 		<!-- Include Time Range Picker -->
+		<!-- http://jonthornton.github.io/jquery-timepicker/ -->
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css" />
 
@@ -33,19 +34,19 @@
 
 	<body>
 		<div style="margin: auto; text-align: center;">
-			<form name="meetUpForm">
+			<form style="padding-top: 20px" name="meetUpForm">
 				<md-input-container>
 					<label>Name your MeetUp</label>
-					<input name="name" type="text" ng-model="main.name" minlength="1">
+					<input type="text" ng-model="main.info.name" minlength="1">
 				</md-input-container>
 				<br>
 				<md-input-container>
 					<label>What dates work?</label>
-					<input type="text" name="daterange" value="08/01/2017 - 09/01/2017" ng-model="main.dates">
+					<input name="daterange" type="text" value="08/01/2017 - 09/01/2017">
 					<script type="text/javascript">
-						$(function() {
 						    $('input[name="daterange"]').daterangepicker();
-						});
+						    var startDate = $('input[name="daterange"]').data('daterangepicker').startDate;
+							var endDate = $('input[name="daterange"]').data('daterangepicker').endDate;						
 					</script>
 				</md-input-container>
 			</form>
@@ -53,21 +54,19 @@
 		<div style="margin: auto; text-align: center;">
 			<md-input-container>
 				<label>Start as early as</label>
-				<input type="text" class="time start" ng-model="main.timestart">
+				<input type="text" class="time" id="start">
 			</md-input-container>
 			<md-input-container>
 				<label>End as late as</label>
-				<input type="text" class="time end" ng-model="main.timeend"
+				<input type="text" class="time" id="end">
 			</md-input-container>
 			<script type="text/javascript">
-				$('.time').timepicker({
-				        'showDuration': true,
-				        'timeFormat': 'g:ia'
-				    });
+				$('#start').timepicker();
+				$('#end').timepicker();
 			</script>
 		</div>
 		<div style="margin: auto; text-align: center;">
-			<md-button ng-click="main.generate()">Done</md-button>
+			<md-button class="md-raised" ng-click="main.generate()">Done</md-button>
 		</div>
 	</body>
 </html>

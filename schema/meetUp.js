@@ -2,14 +2,17 @@
 var mongoose = require('mongoose');
 
 var calendarSchema = new mongoose.Schema({
-	name: String
+	name: String,
 });
 
 //FIX - date range is string?
 var meetUpSchema = new mongoose.Schema({
 	name: String,
-	user_calendars: [calendarSchema],
-	date_range: String,
+	id: String,
+	date_start: Date,
+	date_end: Date,
+	time_start: Date,
+	time_end: Date,
 	main_calendar: calendarSchema
 });
 

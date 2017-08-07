@@ -31,6 +31,7 @@ dtmuApp.controller('MainController', ['$scope', '$location', '$resource', 'ngDia
 	        	$scope.main.info["endTime"] = $('#end').timepicker('getTime', startDate);
 
 	        	var newMeetUpRes = $resource("/meetUp");
+	        	$location.path("/meetUps/" + meetUp.id);
 	        	newMeetUpRes.save($scope.main.info, function(meetUp) {
 	        		console.log(meetUp);
 	        		$rootScope.$broadcast('newMeetUp', meetUp);

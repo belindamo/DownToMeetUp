@@ -165,8 +165,7 @@ function listEvents(auth) {
  * Start up the web server.
  */
 app.get('/', function (request, response) {
-    //response.send('Simple web server of files from ' + __dirname);
-    response.sendFile('mainTemplate.html', {root: __dirname});
+    response.send('Simple web server of files from ' + __dirname);
 });
 
 /*

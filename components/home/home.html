@@ -1,0 +1,26 @@
+<div style="margin: auto; text-align: center;">
+	<form style="padding-top: 20px" name="meetUpForm">
+		<md-input-container>
+			<label>Name your MeetUp</label>
+			<input type="text" ng-model="main.info.name" minlength="1">
+		</md-input-container>
+		<br>
+		<md-input-container>
+			<label>What dates work?</label>
+			<input name="daterange" type="text" value="08/01/2017 - 09/01/2017">
+		</md-input-container>
+	</form>
+</div>
+<div style="margin: auto; text-align: center;">
+	<md-input-container>
+		<label>Start as early as</label>
+		<input type="text" class="time" id="start">
+	</md-input-container>
+	<md-input-container>
+		<label>End as late as</label>
+		<input type="text" class="time" id="end">
+	</md-input-container>
+</div>
+<div style="margin: auto; text-align: center;">
+	<md-button class="md-raised" ng-click="main.generate()">Done</md-button>
+</div>

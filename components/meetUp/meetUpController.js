@@ -3,6 +3,11 @@
 dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$routeParams',
 		function ($scope, $location, $resource, $routeParams,) {
 			$scope.meetUp = {};
+
+			$scope.$on('$viewContentLoaded', function() {
+   				handleClientLoad();			
+			});
+
 			var meetUpId = $routeParams.meetUpId;
 			$scope.main.meetUpId = meetUpId;
 

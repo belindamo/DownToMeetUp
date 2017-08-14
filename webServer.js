@@ -183,7 +183,12 @@ app.route('/userCalendar/:id')
 
   }) //need semicolon?
 
-
+/*
+ * If they give us a link we don't recognize, redirect to home
+ */
+app.get('*', function(req, res) {
+  res.redirect('/#!' + req.originalUrl);
+});
 
 var server = app.listen(3000, function () {
     var port = server.address().port;

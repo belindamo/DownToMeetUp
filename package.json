@@ -4,8 +4,8 @@
   "description": "Scheduling App",
   "main": "webServer.js",
   "scripts": {
-    "test": "echo Test your code by opening http://localhost:3000 in your browser.",
-    "jshint": "./node_modules/.bin/jshint --config .jshintrc --exclude=node_modules,test . || exit 0"
+    "jshint": "./node_modules/.bin/jshint --config .jshintrc --exclude=node_modules,test . || exit 0",
+    "start": "node webServer.js"
   },
   "author": "Belinda Mo <bmo98@stanford.edu> (http://www.belindamo.com)",
   "license": "ISC",

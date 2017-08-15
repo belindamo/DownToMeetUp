@@ -15,6 +15,8 @@ var app = express();
 // We have the express static module (http://expressjs.com/en/starter/static-files.html) do all
 // the work for us.
 app.use(express.static(__dirname));
+app.use('/scripts', express.static(__dirname + '/node_modules/'));
+app.use('/components', express.static(__dirname + '/components/'));
 
 // session stuff
 var session = require('express-session');
@@ -184,7 +186,7 @@ app.route('/userCalendar/:id')
   }) //need semicolon?
 
 /*
- * If they give us a link we don't recognize, redirect to home
+ * Quick fix for hashbang issue
  */
 app.get('*', function(req, res) {
   res.redirect('/#!' + req.originalUrl);

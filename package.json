@@ -5,8 +5,7 @@
   "main": "webServer.js",
   "scripts": {
     "jshint": "./node_modules/.bin/jshint --config .jshintrc --exclude=node_modules,test . || exit 0",
-    "start": "node webServer.js",
-    "postinstall": "npm install"
+    "start": "node webServer.js"
   },
   "author": "Belinda Mo <bmo98@stanford.edu> (http://www.belindamo.com)",
   "license": "ISC",

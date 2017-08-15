@@ -14,9 +14,9 @@ var app = express();
 
 // We have the express static module (http://expressjs.com/en/starter/static-files.html) do all
 // the work for us.
-app.use(express.static(__dirname));
-app.use('/scripts', express.static(__dirname + '/node_modules/'));
-app.use('/components', express.static(__dirname + '/components/'));
+app.use('/public', express.static(__dirname));
+app.use('/scripts', express.static(__dirname + '/node_modules'));
+app.use('/components', express.static(__dirname + '/components'));
 
 // session stuff
 var session = require('express-session');

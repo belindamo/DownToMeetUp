@@ -4,7 +4,26 @@
 <div style="margin: auto; text-align: center; padding-top: 20px;">
 	<p>Instead of manually highlighting when you're available, let us do some of the work. Import events from Google Calendar?</p>
 	<md-button class="md-raised" id="authorize-button" style="display: none;">Sure</md-button>
-	<md-button id="signout-button" style="display: none;">Sign Out</md-button>
+	<md-button class="md-raised" id="signout-button" style="display: none;">Sign Out</md-button>
+	<md-button class="md-raised" id="no-button" ng-click="otherSignIn=true"> No thanks </md-button>
+
+	<div ng-show="otherSignIn">
+		<div style="margin: auto; text-align: center;">
+			<md-input-container>
+				<label>Your Name</label>
+				<input type="text" name="userName" ng-model="userN">
+			</md-input-container>
+		<div style="margin: auto; text-align: center;">
+			<md-input-container>
+				<label>Password (optional)</label>
+				<input type="text" name="password" ng-model="pass">
+			</md-input-container>
+		</div>
+	</div>
+	
+	<div style="margin: auto; text-align: center;">
+		<md-button class="md-raised" ng-click="main.addUser()">Sign in</md-button>
+	</div>
 </div>
 
 <pre id="content"></pre>

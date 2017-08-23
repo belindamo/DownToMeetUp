@@ -2,6 +2,7 @@
 
 dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$routeParams',
 		function ($scope, $location, $resource, $routeParams,) {
+			
 			$scope.meetUp = {};
 
 			$scope.$on('$viewContentLoaded', function() {
@@ -115,7 +116,7 @@ dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$ro
 					appendPre('Upcoming events:');
 
 					if (events.length > 0) {
-						for (i = 0; i < events.length; i++) {
+						for (var i = 0; i < events.length; i++) {
 							var event = events[i];
 							var when = event.start.dateTime;
 							if (!when) {
@@ -129,4 +130,18 @@ dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$ro
 				});
 			}
 
+			//belinda added stuff
+
+			$scope.otherSignIn = false;
+
+			$scope.userN = "";
+			$scope.pass = "";
+
+
+			$scope.main.addUser = function() {
+				//post user data. currently just the username.
+				console.log($scope.userN);
+			};
+
 		}]);
+

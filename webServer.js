@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var async = require('async');
 
 
-// FIX - Load the Mongoose schema for User, Photo, and SchemaInfo
+// FIX - Load the Mongoose schema for MeetUp and SchemaInfo
 var MeetUp = require('./schema/meetUp.js');
 var SchemaInfo = require('./schema/schemaInfo.js');
 
@@ -45,81 +45,6 @@ app.get('/', function (request, response) {
     response.send('Simple web server of files from ' + __dirname);
 });
 
-/*
- * Use express to handle argument passing in the URL.  This .get will cause express
- * To accept URLs with /test/<something> and return the something in request.params.p1
- * If implement the get as follows:
- * /test or /test/info - Return the SchemaInfo object of the database in JSON format. This
- *                       is good for testing connectivity with  MongoDB.
- * /test/counts - Return an object with the counts of the different collections in JSON format
- */
-app.get('/test/:p1', function (request, response) {
-    // Express parses the ":p1" from the URL and returns it in the request.params objects.
-    //console.log('/test called with param1 = ', request.params.p1);
-    console.log("reached /test/:p1")
-    var param = request.params.p1 || 'info';
-                console.log("1");
-
-    if (param === 'info') {
-        // Fetch the SchemaInfo. There should only one of them. The query of {} will match it.
-        console.log("2")
-        SchemaInfo.find({}, function (err, info) {
-            console.log("3");
-            if (err) {
-                // Query returned an error.  We pass it back to the browser with an Internal Service
-                // Error (500) error code.
-                console.error('Doing /user/info error:', err);
-                response.status(500).send(JSON.stringify(err));
-                return;
-            }
-            if (info.length === 0) {
-                // Query didn't return an error but didn't find the SchemaInfo object - This
-                // is also an internal error return.
-                response.status(500).send('Missing SchemaInfo');
-                return;
-            }
-
-            // We got the object - return it in JSON format.
-            //console.log('SchemaInfo', info[0]);
-            response.send(JSON.stringify(info[0]));
-        });
-        
-    } else if (param === 'counts') {
-        // In order to return the counts of all the collections we need to do an async
-        // call to each collections. That is tricky to do so we use the async package
-        // do the work.  We put the collections into array and use async.each to
-        // do each .count() query.
-        // FIX - not same schemas
-        /*
-        var collections = [
-            {name: 'user', collection: User},
-            {name: 'photo', collection: Photo},
-            {name: 'schemaInfo', collection: SchemaInfo}
-        ];
-        async.each(collections, function (col, done_callback) {
-            col.collection.count({}, function (err, count) {
-                col.count = count;
-                done_callback(err);
-            });
-        }, function (err) {
-            if (err) {
-                response.status(500).send(JSON.stringify(err));
-            } else {
-                var obj = {};
-                for (var i = 0; i < collections.length; i++) {
-                    obj[collections[i].name] = collections[i].count;
-                }
-                response.send(JSON.stringify(obj));
-
-            }
-        });*/
-        response.status(400).send("need to create schema");
-    } else {
-        // If we know understand the parameter we return a (Bad Parameter) (400) status.
-        response.status(400).send('Bad param ' + param);
-    }
-
-});
 
 /* 
  * Create the meetUp, from the homepage
@@ -130,17 +55,17 @@ app.get('/test/:p1', function (request, response) {
  * full calendar empty.
  */
 app.post('/meetUp', function(request, response) {
-  var cal = request.body;
-  console.log(cal);
-  MeetUp.create({name: cal.name, date_start: cal.startDate, date_end: cal.endDate, time_start: cal.startTime, time_end: cal.endTime}, function(err, newMeetUp) {
+  var meet = request.body;
+  console.log(meet);
+  MeetUp.create({name: meet.name, date_start: meet.startDate, date_end: meet.endDate, time_start: meet.startTime, time_end: meet.endTime, main_calendar: {}, user_calendars: []}, function(err, newMeetUp) {
                   console.log("meetup create")
                   if (err) {
                     console.log("Error when creating meetUp");
                     response.status(500).send(JSON.stringify(err));
                     return;
                   } else {
-                    newMeetUp.id = newMeetUp._id;
-                    console.log('Created MeetUp with ID ', newMeetUp.id);
+                    //newMeetUp.id = newMeetUp._id; not necessary
+                    console.log('Created MeetUp with ID ', newMeetUp._id);
                     newMeetUp.save({}, function() {
                       response.end(JSON.stringify(newMeetUp));
                     });
@@ -149,17 +74,47 @@ app.post('/meetUp', function(request, response) {
 });
 
 app.route('/meetUp/:id')
-  .get(function(request, response) { //retrieve user's cal
+//get's the meetup based on its id. browser side gets id through the url.
+  .get(function(request, response) { //retrieve meetUp
     console.log(request.params.id);
-  })
-  //update meetUp cal or other meetUp schema info (like name) besides userCals
-  // FIX - not sure if this should be put vs post? tbd
-  .put(function(request,response) { 
 
+    var id = request.params.id;
+    MeetUp.findOne({_id: id}, function(err, meet) {
+      if (err || meet === null) {
+        response.status(401).send(err);
+        return;
+      }
+      meet = JSON.parse(JSON.stringify(meet)); //make sure it's sent in correct format
+      response.send(JSON.stringify(meet));
+    });
+  });
+  //update meetUp cal or other meetUp schema info (like name) besides userCals
+  //but tbh, how much do we want to let them edit after creating the meetup?
+  // if we want more functionality, we can pass in an object with key that
+  //indicates what we would like to edit
+/*
+  .post(function(request,response) {  //put or post?
+    console.log(request.params.id);
+    var id = request.params.id;
+    var toChange = request.body.change; 
+
+    MeetUp.findOne({_id: id}, function(err, meet) {
+      if (err || meet === null) {
+        response.status(401).send(err);
+        return;
+      }
+
+
+
+    });
   }) 
+*/
+  //Is this necessary? Do we want to provide this functionality?
+  /* 
   .delete(function(request, response) { //delete meetUp
 
   }) //need semicolon?
+*/
 
 
 /*
@@ -171,20 +126,76 @@ app.route('/meetUp/:id')
  * what is necessary through body to store.
  */
 app.post('/userCalendar', function(request, response) {
+  //request should contain meetup id, and necessary user info
+  //MeetUp.findOne for correct meetup
+  //cal.username = etc etc
+  //then, update meetup with another calendar. 
+  var id = request.body.meet_id;
+  //what other stuff do we need to pass into the body and store?
+  var username = request.body.username;
+
+  if (username === null) {
+    response.status(400).send("Empty username");
+    return;
+  }
+
+  MeetUp.findOne({_id: id}, function(err, meet) {
+    if (err || meet === null) {
+      response.status(401).send(err);
+      return;
+    }
+
+    var c = {}; //new user_calendar
+    c.username = username;
+    meet.user_calendars.push(c);
+
+    meet.save({}, function() {
+      return response.status(200).end();
+    }, function errorHandling(err) {
+      response.status(500).send(JSON.stringify(err));
+    });
+
+  });
 
 });
 
+/*
+ * Gets the main calendar
+ */
+ /* unnceesary bc this is passed in entire meetup app.get(/meetup/:id)
+ app.get('/mainCal/:meet_id', function(request, response) {
+  var id = request.params.meet_id;
+  MeetUp.findOne({_id: id}, function(err, meet) {
+    if (err || meet === null) {
+      response.status(401).send(err);
+      return;
+    }
+
+    var c = JSON.parse(JSON.stringify(meet.main_calendar));
+
+    response.send(JSON.stringify(c));
+
+  });
+ });
+*/
+
 app.route('/userCalendar/:id')
+/* This is unnecessary atm
   .get(function(request, response) { //retrieve user's cal
 
   })
-  .put(function(request,response) { //update user's cal. FIX - not sure if this should be put vs post? tbd
-
-  }) 
+*/
+/* what are we posting?*/
+  .post(function(request,response) { //update user's cal. FIX - not sure if this should be put vs post? tbd
+    response.status(400).send("/userCalendar/:id has not yet been implemented");
+  }); 
+  /* tb implemented later
   .delete(function(request, response) { //delete user's cal
 
   }) //need semicolon?
 
+
+*/
 /*
  * Quick fix for hashbang issue
  */

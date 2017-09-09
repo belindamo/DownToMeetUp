@@ -56,8 +56,11 @@ app.get('/', function (request, response) {
  */
 app.post('/meetUp', function(request, response) {
   var meet = request.body;
-  console.log(meet);
-  MeetUp.create({name: meet.name, date_start: meet.startDate, date_end: meet.endDate, time_start: meet.startTime, time_end: meet.endTime, main_calendar: {}, user_calendars: []}, function(err, newMeetUp) {
+  console.log("webServer /meetUp called with meet:", meet);
+
+  var generalCal = createGeneralCal(date_start, date_end, time_start, time_end); //array
+  //[ADD] initialize general_cal_events with the 15 min increments?
+  MeetUp.create({name: meet.name, date_start: meet.startDate, date_end: meet.endDate, time_start: meet.startTime, time_end: meet.endTime, description: "", general_cal_events: generalCal, attendees: [meet.username]}, function(err, newMeetUp) {
                   console.log("meetup create")
                   if (err) {
                     console.log("Error when creating meetUp");
@@ -73,81 +76,128 @@ app.post('/meetUp', function(request, response) {
                 });
 });
 
+//[CHECK] I'm going to assume that dateStart starts with the correct time too.
+function createGeneralCal(dateStart, dateEnd, timeStart, timeEnd) {
+  return [];
+}
+
+function dateAdd(date, units, interval) {
+  var ret = new Date(date); //don't change original date
+  var checkRollover = function() { if(ret.getDate() != date.getDate()) ret.setDate(0);};
+  switch(units.toLowerCase()) {
+    case 'year'   :  ret.setFullYear(ret.getFullYear() + interval); checkRollover();  break;
+    case 'quarter':  ret.setMonth(ret.getMonth() + 3*interval); checkRollover();  break;
+    case 'month'  :  ret.setMonth(ret.getMonth() + interval); checkRollover();  break;
+    case 'week'   :  ret.setDate(ret.getDate() + 7*interval);  break;
+    case 'day'    :  ret.setDate(ret.getDate() + interval);  break;
+    case 'hour'   :  ret.setTime(ret.getTime() + interval*3600000);  break;
+    case 'minute' :  ret.setTime(ret.getTime() + interval*60000);  break;
+    case 'second' :  ret.setTime(ret.getTime() + interval*1000);  break;
+    default       :  ret = undefined;  break;
+  }
+  return ret;
+}
+
 app.route('/meetUp/:id')
-//get's the meetup based on its id. browser side gets id through the url.
+  //gets the meetup based on its id. browser side gets id through the url.
   .get(function(request, response) { //retrieve meetUp
     console.log(request.params.id);
 
     var id = request.params.id;
     MeetUp.findOne({_id: id}, function(err, meet) {
       if (err || meet === null) {
+        console.log("Error finding meetup" + id);
         response.status(401).send(err);
         return;
       }
+      console.log("Meetup" + id + "has successfully been found");
+
       meet = JSON.parse(JSON.stringify(meet)); //make sure it's sent in correct format
       response.send(JSON.stringify(meet));
     });
   });
-  //update meetUp cal or other meetUp schema info (like name) besides userCals
-  //but tbh, how much do we want to let them edit after creating the meetup?
-  // if we want more functionality, we can pass in an object with key that
-  //indicates what we would like to edit
-/*
-  .post(function(request,response) {  //put or post?
+
+  //update meetUp cal when meetup info changes (NOT used for when attendee availabiliy changes)
+  .post(function(request,response) {  
     console.log(request.params.id);
     var id = request.params.id;
-    var toChange = request.body.change; 
+    var toChange = request.body.change; //object of things to change?
 
     MeetUp.findOne({_id: id}, function(err, meet) {
       if (err || meet === null) {
+        console.log("Error finding meetup" + id);
         response.status(401).send(err);
         return;
       }
 
+      //[ADD] update meet data here
 
+      console.log("Meetup" + id + "updated: " + meet);      
+
+      meet.save({}, function() {
+        return response.status(200).end();
+      }, function errorHandling(err) {
+        response.status(500).send(JSON.stringify(err));
+      });
 
     });
-  }) 
-*/
-  //Is this necessary? Do we want to provide this functionality?
-  /* 
-  .delete(function(request, response) { //delete meetUp
-
-  }) //need semicolon?
-*/
+  });
 
 
-/*
- * POST
- * Called upon creating a new user calendar
- * request body should contain name of user, opt password,
- * and opt google cal data? <- storage org tbd
- * ^should be parsed on browser side, send
- * what is necessary through body to store.
- */
-app.post('/userCalendar', function(request, response) {
-  //request should contain meetup id, and necessary user info
-  //MeetUp.findOne for correct meetup
-  //cal.username = etc etc
-  //then, update meetup with another calendar. 
-  var id = request.body.meet_id;
-  //what other stuff do we need to pass into the body and store?
-  var username = request.body.username;
-
-  if (username === null) {
-    response.status(400).send("Empty username");
-    return;
-  }
+app.get('/userlist/:id', function(request, response) {
+  var id = request.params.id; //meet id
 
   MeetUp.findOne({_id: id}, function(err, meet) {
     if (err || meet === null) {
+      console.log("Error finding meetup" + id);
       response.status(401).send(err);
       return;
     }
 
-    var c = {}; //new user_calendar
-    c.username = username;
-    meet.user_calendars.push(c);
+    var list = getAllUsernames(meet.attendees);
+    console.log("Created user list:" + list);
+    list = JSON.parse(JSON.stringify(list));
+    response.send(JSON.stringify(list));
+  });
+});
+
+function getAllUsernames(attendees) {
+  var usernames = [];
+  var arrLength = attendees.length;
+
+  for (var i = 0; i < arrLength; i++) {
+    usernames.push(attendees[i].username);
+  }
+  return usernames;
+}
+
+/*
+ * POST
+ * Create new attendee 
+ */
+app.post('/user', function(request, response) {
+  //request should contain meetup id, and user's username, buffer (auto?), and events (opt)
+  
+  var id = request.body.meet_id;
+  var username = request.body.username;
+  var buffer = request.body.buffer; // int. every increment is 15 min. so like, if buffer == 1 then buffer is 15 min
+  var gcal_events = request.body.events; 
+
+
+  MeetUp.findOne({_id: id}, function(err, meet) {
+    if (err || meet === null) {
+      console.log("Error finding meetup" + id);
+      response.status(401).send(err);
+      return;
+    }
+
+    //update meet.attendees
+    var newUser = {username: username, buffer: buffer, gcal_events: gcal_events}
+    meet.attendees.push(newUser);
+    console.log("New user should be created and added to Meetup's attendees: " + newUser);
+    //update meet.general_cal_events
+    meet.general_cal_events = addUserToGeneralCal(meet.general_cal_events, username, buffer, gcal_events);
+    console.log("Meetup general_cal_events should be updated to include " + username + ": " + meet.general_cal_events);
 
     meet.save({}, function() {
       return response.status(200).end();
@@ -159,43 +209,94 @@ app.post('/userCalendar', function(request, response) {
 
 });
 
+//need to check if works
+function addUserToGeneralCal(eventArr, un, buffer, busy) {
+  var newArr = eventArr;
+  var arrSize = eventArr.length;
+
+  for (var i = 0; i < arrSize; i++) { //can change logic later
+    var evt = newArr[i];
+    if (!busy.contains(evt)) {
+
+    } else if (busy.contains(newArr[i+buffer]) || busy.contains(newArr[i-buffer]) {
+      //[FIX] only works if buffer is 0 or 1
+    } else {
+      newArr[i].available_users.push(un);
+    }
+  }
+  return newArr;
+}
+
+
 /*
- * Gets the main calendar
+ * edit availability of current user
+ * request.body contains: 
+ *    username: 
+ *    available: bool to indicate if changing to availability or unavailability
+ *    date_change: [Date] of all 15 min increments that are changing
  */
- /* unnceesary bc this is passed in entire meetup app.get(/meetup/:id)
- app.get('/mainCal/:meet_id', function(request, response) {
-  var id = request.params.meet_id;
+app.post('/userCalendar/:id', function(request, response) { 
+    //[ADD]
+
+  var id = request.params.id; //meet id
+  var username = request.body.username;
+  var available = request.body.available;
+  var date_change = request.body.date_change; //array of all 15 min increments being changed 
+
   MeetUp.findOne({_id: id}, function(err, meet) {
     if (err || meet === null) {
+      console.log("Error finding meetup" + id);
       response.status(401).send(err);
       return;
     }
+/* IMPORTANT: this should be checked in Angular. Saves time
+    if (username === null || !foundUsername(meet.attendees)) {
+      console.log("username" + username + "not found");
+      response.status(400).send("No existing username");
+      return;
+    }
+*/
+    meet.general_cal_events = updateGeneralEvents(meet.general_cal_events, username, available, date_change);
 
-    var c = JSON.parse(JSON.stringify(meet.main_calendar));
+    meet.attendees = updateUserGCalAvailability(meet.attendees, username, available, date_change);
 
-    response.send(JSON.stringify(c));
+    console.log("user availability for " + username + "should be updated.");
+    console.log("meet.general_cal_events: " + meet.general_cal_events);
+    console.log("meet.attendees: " + meet.attendees);
+
+    meet.save({}, function() {
+      return response.status(200).end();
+    }, function errorHandling(err) {
+      response.status(500).send(JSON.stringify(err));
+    });
 
   });
- });
-*/
 
-app.route('/userCalendar/:id')
-/* This is unnecessary atm
-  .get(function(request, response) { //retrieve user's cal
-
-  })
-*/
-/* what are we posting?*/
-  .post(function(request,response) { //update user's cal. FIX - not sure if this should be put vs post? tbd
-    response.status(400).send("/userCalendar/:id has not yet been implemented");
-  }); 
-  /* tb implemented later
-  .delete(function(request, response) { //delete user's cal
-
-  }) //need semicolon?
+}); 
 
 
-*/
+
+function updateGeneralEvents(eventArr, un, avail, dateChange) {
+
+}
+
+function updateUserGCalAvailability(attendees, un, avail, dateChange) {
+  var u;
+  var aLength = attendees.length;
+  for (var i = 0; i < aLength; i++) {
+    if (attendees[i].username === un) {
+      u = attendees[i];
+      break;
+    }
+  }
+
+  var eLength = u.gcal_events.length;
+  for (var j = 0; j < eLength; j++) {
+
+  }
+
+}
+
 /*
  * Quick fix for hashbang issue
  */

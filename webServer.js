@@ -76,7 +76,7 @@ app.post('/meetUp', function(request, response) {
                 });
 });
 
-//[CHECK] I'm going to assume that dateStart starts with the correct time too.
+//[ADD]
 function createGeneralCal(dateStart, dateEnd, timeStart, timeEnd) {
   return [];
 }
@@ -115,7 +115,7 @@ app.route('/meetUp/:id')
       meet = JSON.parse(JSON.stringify(meet)); //make sure it's sent in correct format
       response.send(JSON.stringify(meet));
     });
-  });
+  })
 
   //update meetUp cal when meetup info changes (NOT used for when attendee availabiliy changes)
   .post(function(request,response) {  
@@ -216,10 +216,16 @@ function addUserToGeneralCal(eventArr, un, buffer, busy) {
 
   for (var i = 0; i < arrSize; i++) { //can change logic later
     var evt = newArr[i];
+    var b1 = newArr[buffer+i];
+    
+    //[FIX] only works if buffer is 0 or 1
+
     if (!busy.contains(evt)) {
 
-    } else if (busy.contains(newArr[i+buffer]) || busy.contains(newArr[i-buffer]) {
-      //[FIX] only works if buffer is 0 or 1
+    } else if (i - buffer >= 0 && busy.contains(newArr[i-buffer])) { 
+
+    } else if (i + buffer < arrSize && busy.contains(newArr[i+buffer])) {
+
     } else {
       newArr[i].available_users.push(un);
     }
@@ -236,7 +242,6 @@ function addUserToGeneralCal(eventArr, un, buffer, busy) {
  *    date_change: [Date] of all 15 min increments that are changing
  */
 app.post('/userCalendar/:id', function(request, response) { 
-    //[ADD]
 
   var id = request.params.id; //meet id
   var username = request.body.username;
@@ -249,13 +254,15 @@ app.post('/userCalendar/:id', function(request, response) {
       response.status(401).send(err);
       return;
     }
-/* IMPORTANT: this should be checked in Angular. Saves time
-    if (username === null || !foundUsername(meet.attendees)) {
-      console.log("username" + username + "not found");
-      response.status(400).send("No existing username");
-      return;
-    }
-*/
+    /* IMPORTANT: this should be checked in Angular. Saves time
+        if (username === null || !foundUsername(meet.attendees)) {
+          console.log("username" + username + "not found");
+          response.status(400).send("No existing username");
+          return;
+        }
+    */
+
+    //[ADD]
     meet.general_cal_events = updateGeneralEvents(meet.general_cal_events, username, available, date_change);
 
     meet.attendees = updateUserGCalAvailability(meet.attendees, username, available, date_change);
@@ -275,11 +282,12 @@ app.post('/userCalendar/:id', function(request, response) {
 }); 
 
 
-
+//[ADD]
 function updateGeneralEvents(eventArr, un, avail, dateChange) {
 
 }
 
+//[ADD]
 function updateUserGCalAvailability(attendees, un, avail, dateChange) {
   var u;
   var aLength = attendees.length;

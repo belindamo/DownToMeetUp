@@ -10,11 +10,11 @@ var meetUpSchema = new mongoose.Schema({
 	description: String,
 	general_cal_events: [{
 		time: Date, 
-		available_users: [string] 
+		available_users: [String] 
 	}], //array of 15 min increments
 	attendees: [{ 
 		username: String, 
-		buffer: int, 
+		buffer: Number, 
 		gcal_events: [{
 			time: Date, 
 			event_name: String, 

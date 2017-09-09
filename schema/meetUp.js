@@ -3,10 +3,8 @@ var mongoose = require('mongoose');
 
 var meetUpSchema = new mongoose.Schema({
 	name: String,
-	date_start: Date,
-	date_end: Date,
-	time_start: Date,
-	time_end: Date,
+	cal_start: Date,
+	cal_end: Date,
 	description: String,
 	general_cal_events: [{
 		time: Date, 

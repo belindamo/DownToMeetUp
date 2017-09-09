@@ -58,9 +58,9 @@ app.post('/meetUp', function(request, response) {
   var meet = request.body;
   console.log("webServer /meetUp called with meet:", meet);
 
-  var generalCal = createGeneralCal(date_start, date_end, time_start, time_end); //array
+  var generalCal = createGeneralCal(meet.cal_start, meet.cal_end); //array
   //[ADD] initialize general_cal_events with the 15 min increments?
-  MeetUp.create({name: meet.name, date_start: meet.startDate, date_end: meet.endDate, time_start: meet.startTime, time_end: meet.endTime, description: "", general_cal_events: generalCal, attendees: [meet.username]}, function(err, newMeetUp) {
+  MeetUp.create({name: meet.name, cal_start: meet.cal_start, cal_end: meet.cal_end, description: "", general_cal_events: generalCal, attendees: [meet.username]}, function(err, newMeetUp) {
                   console.log("meetup create")
                   if (err) {
                     console.log("Error when creating meetUp");
@@ -77,8 +77,22 @@ app.post('/meetUp', function(request, response) {
 });
 
 //[ADD]
-function createGeneralCal(dateStart, dateEnd, timeStart, timeEnd) {
-  return [];
+function createGeneralCal(start, end) {
+  var generalCal = [];
+  var firstBlock = new Date(
+    start.getFullYear(), 
+    start.getMonth(), 
+    start.getDate(),
+    
+    );
+
+  var startHr = timeStart.getHours(); // 0-23
+  var startMin = timeStart.getMinutes(); //only 00, 15, 30, 45
+  var endHr = timeEnd.getHours();
+  var endMin = timeEnd.getMinutes();
+
+
+  return generalCal;
 }
 
 function dateAdd(date, units, interval) {

@@ -3,21 +3,19 @@ var mongoose = require('mongoose');
 
 var meetUpSchema = new mongoose.Schema({
 	name: String,
-	cal_start: Date,
-	cal_end: Date,
+	cal_start: String, // Date.toISOString()
+	cal_end: String, // Date.toISOString()
 	description: String,
-	general_cal_events: [{
-		time: Date, 
-		available_users: [String] 
+	slots: [{
+		time: String, 
+		available_users: [String] // usernames
 	}], //array of 15 min increments
 	attendees: [{ 
 		username: String, 
-		buffer: Number, 
 		gcal_events: [{
-			time: Date, 
-			event_name: String, 
-			available: Boolean
-		}] 
+			time: String, 
+			event_name: String
+		}]
 	}]
 });
 

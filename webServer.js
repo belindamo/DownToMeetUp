@@ -58,9 +58,8 @@ app.post('/meetUp', function(request, response) {
   var meet = request.body;
   console.log("webServer /meetUp called with meet:", meet);
 
-  var generalCal = createGeneralCal(date_start, date_end, time_start, time_end); //array
-  //[ADD] initialize general_cal_events with the 15 min increments?
-  MeetUp.create({name: meet.name, date_start: meet.startDate, date_end: meet.endDate, time_start: meet.startTime, time_end: meet.endTime, description: "", general_cal_events: generalCal, attendees: [meet.username]}, function(err, newMeetUp) {
+  //[ADD] initialize slots with the 15 min increments?
+  MeetUp.create({name: meet.name, cal_start: meet.cal_start, cal_end: meet.cal_end, description: "", slots: meet.slots, attendees: []}, function(err, newMeetUp) {
                   console.log("meetup create")
                   if (err) {
                     console.log("Error when creating meetUp");
@@ -75,28 +74,6 @@ app.post('/meetUp', function(request, response) {
                   }
                 });
 });
-
-//[ADD]
-function createGeneralCal(dateStart, dateEnd, timeStart, timeEnd) {
-  return [];
-}
-
-function dateAdd(date, units, interval) {
-  var ret = new Date(date); //don't change original date
-  var checkRollover = function() { if(ret.getDate() != date.getDate()) ret.setDate(0);};
-  switch(units.toLowerCase()) {
-    case 'year'   :  ret.setFullYear(ret.getFullYear() + interval); checkRollover();  break;
-    case 'quarter':  ret.setMonth(ret.getMonth() + 3*interval); checkRollover();  break;
-    case 'month'  :  ret.setMonth(ret.getMonth() + interval); checkRollover();  break;
-    case 'week'   :  ret.setDate(ret.getDate() + 7*interval);  break;
-    case 'day'    :  ret.setDate(ret.getDate() + interval);  break;
-    case 'hour'   :  ret.setTime(ret.getTime() + interval*3600000);  break;
-    case 'minute' :  ret.setTime(ret.getTime() + interval*60000);  break;
-    case 'second' :  ret.setTime(ret.getTime() + interval*1000);  break;
-    default       :  ret = undefined;  break;
-  }
-  return ret;
-}
 
 app.route('/meetUp/:id')
   //gets the meetup based on its id. browser side gets id through the url.
@@ -195,9 +172,9 @@ app.post('/user', function(request, response) {
     var newUser = {username: username, buffer: buffer, gcal_events: gcal_events}
     meet.attendees.push(newUser);
     console.log("New user should be created and added to Meetup's attendees: " + newUser);
-    //update meet.general_cal_events
-    meet.general_cal_events = addUserToGeneralCal(meet.general_cal_events, username, buffer, gcal_events);
-    console.log("Meetup general_cal_events should be updated to include " + username + ": " + meet.general_cal_events);
+    //update meet.slots
+    meet.slots = addUserToSlots(meet.slots, username, buffer, gcal_events);
+    console.log("Meetup slots should be updated to include " + username + ": " + meet.slots);
 
     meet.save({}, function() {
       return response.status(200).end();
@@ -210,7 +187,7 @@ app.post('/user', function(request, response) {
 });
 
 //need to check if works
-function addUserToGeneralCal(eventArr, un, buffer, busy) {
+function addUserToSlots(eventArr, un, buffer, busy) {
   var newArr = eventArr;
   var arrSize = eventArr.length;
 
@@ -239,13 +216,13 @@ function addUserToGeneralCal(eventArr, un, buffer, busy) {
  * request.body contains: 
  *    username: 
  *    available: bool to indicate if changing to availability or unavailability
- *    date_change: [Date] of all 15 min increments that are changing
+ *    date_change: [String] ISO0Strings of all 15 min increments that are changing
  */
-app.post('/userCalendar/:id', function(request, response) { 
+app.post('/attendee/:id', function(request, response) { 
 
   var id = request.params.id; //meet id
   var username = request.body.username;
-  var available = request.body.available;
+  // var available = request.body.available; // don't need this if we're toggling
   var date_change = request.body.date_change; //array of all 15 min increments being changed 
 
   MeetUp.findOne({_id: id}, function(err, meet) {
@@ -263,12 +240,10 @@ app.post('/userCalendar/:id', function(request, response) {
     */
 
     //[ADD]
-    meet.general_cal_events = updateGeneralEvents(meet.general_cal_events, username, available, date_change);
-
-    meet.attendees = updateUserGCalAvailability(meet.attendees, username, available, date_change);
+    meet.slots = updateSlots(meet.slots, username, available, date_change); // date_change is an array of all dates that need to be changed
 
     console.log("user availability for " + username + "should be updated.");
-    console.log("meet.general_cal_events: " + meet.general_cal_events);
+    console.log("meet.slots: " + meet.slots);
     console.log("meet.attendees: " + meet.attendees);
 
     meet.save({}, function() {
@@ -283,25 +258,7 @@ app.post('/userCalendar/:id', function(request, response) {
 
 
 //[ADD]
-function updateGeneralEvents(eventArr, un, avail, dateChange) {
-
-}
-
-//[ADD]
-function updateUserGCalAvailability(attendees, un, avail, dateChange) {
-  var u;
-  var aLength = attendees.length;
-  for (var i = 0; i < aLength; i++) {
-    if (attendees[i].username === un) {
-      u = attendees[i];
-      break;
-    }
-  }
-
-  var eLength = u.gcal_events.length;
-  for (var j = 0; j < eLength; j++) {
-
-  }
+function updateSlots(eventArr, un, avail, dateChange) {
 
 }
 

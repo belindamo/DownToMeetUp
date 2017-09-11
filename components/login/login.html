@@ -1,0 +1,22 @@
+<md-toolbar>MeetUp Name Here</md-toolbar>
+
+<md-content>
+	<div style="margin: auto; text-align: center;">
+		<md-input-container>
+			<label>Your Name</label>
+			<input type="text" name="userName" ng-model="main.userN">
+		</md-input-container>
+	<div style="margin: auto; text-align: center;">
+		<md-input-container>
+			<label>Password (optional)</label>
+			<input type="text" name="password" ng-model="main.pass">
+		</md-input-container>
+	</div>
+
+	<div style="margin: auto; text-align: center;">
+		<md-button class="md-raised" ng-click="main.addUser()">Sign in</md-button>
+	</div>
+</md-content>
+
+
+

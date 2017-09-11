@@ -13,6 +13,10 @@ dtmuApp.config(['$routeProvider', '$locationProvider',
         		templateUrl: 'components/meetUp/meetUp.html',
         		controller: 'MeetUpController'
         	}).
+            when('/login', {
+                templateUrl: 'components/login/login.html',
+                controller: 'LoginController'
+            }).
         	otherwise({
         		redirectTo: '/home'
         	});

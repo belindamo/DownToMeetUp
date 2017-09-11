@@ -2,8 +2,6 @@
 
 dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$routeParams',
 		function ($scope, $location, $resource, $routeParams) {
-			$scope.firstTime = true	//should set to true if this username exists in database else false
-
 			$scope.meetUp = {};
 
 			$scope.$on('$viewContentLoaded', function() {
@@ -132,54 +130,17 @@ dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$ro
 			}
 
 			//belinda added stuff
+			//ellen here, moved below to login controller
+			// $scope.otherSignIn = false;
 
-			$scope.otherSignIn = false;
-
-			$scope.userN = "";
-			$scope.pass = "";
+			// $scope.userN = "";
+			// $scope.pass = "";
 
 
-			$scope.main.addUser = function() {
-				//post user data. currently just the username.
-				console.log($scope.userN);
-			};
-
-			$scope.main.generateSlots = function(startDate, endDate, startTime, endTime) {
-				
-			}
-
-			// $scope.temp = {
-			// 	startDate: '2017-09-01'
-			// 	endDate: '2018-09-30'
-			// 	startTime: '09:00:00'
-			// 	endTime: '09'
-			// 	slots: [
-			//         {
-			//             start: '2017-08-29T10:00:00',
-			//             end: '2017-08-29T10:15:00',
-			//         },
-			//         {
-			//             start: '2017-08-29T10:15:00',
-			//             end: '2017-08-29T10:30:00',
-			//         },
-			//         {
-			//             start: '2017-08-29T10:30:00',
-			//             end: '2017-08-29T10:45:00',
-			//         },
-			//         {
-			//             start: '2017-08-29T10:45:00',
-			//             end: '2017-08-29T11:00:00',
-			//         },
-			//         {
-			//             start: '2017-08-29T11:00:00',
-			//             end: '2017-08-29T11:15:00',
-			//         },
-			//     ],
-			//     rendering: 'background',
-			// }
-
-			var now = moment();
-			console.log("its now: " + now);
+			// $scope.main.addUser = function() {
+			// 	//post user data. currently just the username.
+			// 	console.log($scope.userN);
+			// };
 
 
 			$(document).ready(function() {

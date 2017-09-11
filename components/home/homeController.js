@@ -47,23 +47,23 @@ dtmuApp.controller('HomeController', ['$scope', '$location', '$resource', 'ngDia
 	        	}
 
 	        	//Generating rest of the slots for remaining days...
-	        	/*
-	        	slots = [];
-	        	var currentSlotDay = startTimeMoment
+	        	
+	        	var slots = [];
+	        	var xcludeBoundarySlot = moment(calEnd).add(moment.duration(1, 'days')).startOf('day');
 
-	        	var exclusiveSlotDay = 
-
-	        	for (var i = 0; i < slotTimes.length; i++) {
-	        		var singleSlot = slotTimes[i].clone().add(moment.duration(1, 'days'));
-	        		slots.push(singleSlot);
+	        	while (slotTimes[0].isBefore(xcludeBoundarySlot)) {
+					for (var i = 0; i < slotTimes.length; i++) {
+		        		slotTimes[i].add(moment.duration(1, 'days'));
+		        		slots.push(slotTimes[i].clone().toISOString());
+		        	}
 	        	}
 
 	        	$scope.main.slots = slots;
-	        	*/
+	        	
 	        	//Printing out slots...
 	        	console.log("# of slots: " + slotTimes.length);
-	        	for(var i = 0; i < slotTimes.length; i++) {
-	        		console.log(slotTimes[i].toISOString());
+	        	for(var i = 0; i < slots.length; i++) {
+	        		console.log(slots[i]);
 	        	}
 
 	        	var newMeetUpRes = $resource("/meetUp");

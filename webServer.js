@@ -1,3 +1,8 @@
+// IMPORTANT 
+// You can test out the webServer with fake data. 
+// load database by running mongod, and entering in terminal "node loadMeetupDB.js"
+// check out fake data in modelData/meetUpData to find ids of meetups to see how stuff looks
+
 var mongoose = require('mongoose');
 var async = require('async');
 
@@ -55,21 +60,21 @@ app.get('/', function (request, response) {
  * full calendar empty.
  */
 app.post('/meetUp', function(request, response) {
-  var meet = request.body;
+  var meet = request.body; //contains name, cal_start, cal_end, description, and slots
   console.log("webServer /meetUp called with meet:", meet);
 
-  //[ADD] initialize slots with the 15 min increments?
-  MeetUp.create({name: meet.name, cal_start: meet.cal_start, cal_end: meet.cal_end, description: "", slots: meet.slots, attendees: []}, function(err, newMeetUp) {
+  MeetUp.create({name: meet.name, cal_start: meet.cal_start, cal_end: meet.cal_end, description: meet.description, slots: meet.slots, attendees: []}, function(err, newMeetUp) {
                   console.log("meetup create")
                   if (err) {
                     console.log("Error when creating meetUp");
                     response.status(500).send(JSON.stringify(err));
                     return;
                   } else {
-                    //newMeetUp.id = newMeetUp._id; not necessary
                     console.log('Created MeetUp with ID ', newMeetUp._id);
                     newMeetUp.save({}, function() {
                       response.end(JSON.stringify(newMeetUp));
+                    }, function errorHandling(err) {
+                      response.status(500).send(JSON.stringify(err));
                     });
                   }
                 });
@@ -108,6 +113,7 @@ app.route('/meetUp/:id')
       }
 
       //[ADD] update meet data here
+      //IMPORTANT QUESTION: what should we make editable by users?
 
       console.log("Meetup" + id + "updated: " + meet);      
 
@@ -157,7 +163,6 @@ app.post('/user', function(request, response) {
   
   var id = request.body.meet_id;
   var username = request.body.username;
-  var buffer = request.body.buffer; // int. every increment is 15 min. so like, if buffer == 1 then buffer is 15 min
   var gcal_events = request.body.events; 
 
 
@@ -169,11 +174,19 @@ app.post('/user', function(request, response) {
     }
 
     //update meet.attendees
-    var newUser = {username: username, buffer: buffer, gcal_events: gcal_events}
+    var newUser = {username: username, gcal_events: gcal_events}
     meet.attendees.push(newUser);
     console.log("New user should be created and added to Meetup's attendees: " + newUser);
+    
     //update meet.slots
-    meet.slots = addUserToSlots(meet.slots, username, buffer, gcal_events);
+    var slots = meet.slots;
+    for (var i = 0; i < slots.length; i++) { //can change logic later
+      var evt = slots[i].time;
+      if (!gCalContainsEvt(gcal_events, evt)) {
+        slots[i].available_users.push(username);
+      }
+    }
+    meet.slots = slots;
     console.log("Meetup slots should be updated to include " + username + ": " + meet.slots);
 
     meet.save({}, function() {
@@ -186,33 +199,17 @@ app.post('/user', function(request, response) {
 
 });
 
-//need to check if works
-function addUserToSlots(eventArr, un, buffer, busy) {
-  var newArr = eventArr;
-  var arrSize = eventArr.length;
-
-  for (var i = 0; i < arrSize; i++) { //can change logic later
-    var evt = newArr[i];
-    var b1 = newArr[buffer+i];
-    
-    //[FIX] only works if buffer is 0 or 1
-
-    if (!busy.contains(evt)) {
-
-    } else if (i - buffer >= 0 && busy.contains(newArr[i-buffer])) { 
-
-    } else if (i + buffer < arrSize && busy.contains(newArr[i+buffer])) {
-
-    } else {
-      newArr[i].available_users.push(un);
+function gCalContainsEvt(gCal, evt) {
+  for (var i=0; i<gCal.length; i++) {
+    if (gCal[i].time === evt) {
+      return true;
     }
   }
-  return newArr;
+  return false;
 }
 
-
 /*
- * edit availability of current user
+ * edit availability of current user. this is called for every single slot
  * request.body contains: 
  *    username: 
  *    available: bool to indicate if changing to availability or unavailability
@@ -222,8 +219,7 @@ app.post('/attendee/:id', function(request, response) {
 
   var id = request.params.id; //meet id
   var username = request.body.username;
-  // var available = request.body.available; // don't need this if we're toggling
-  var date_change = request.body.date_change; //array of all 15 min increments being changed 
+  var slot = request.body.slot;
 
   MeetUp.findOne({_id: id}, function(err, meet) {
     if (err || meet === null) {
@@ -239,12 +235,21 @@ app.post('/attendee/:id', function(request, response) {
         }
     */
 
-    //[ADD]
-    meet.slots = updateSlots(meet.slots, username, available, date_change); // date_change is an array of all dates that need to be changed
+    var x;
+    for (var i = 0; i < meet.slots.length; i++) { //there should be more efficient way to find slot
+      if (meet.slots[i] === slot) {
+        if (meet.slots[i].available_users.contains(username)) {
+          meet.slots[i].available_users.pop(username); //is pop a function?
+        
+        } else {
+          meet.slots[i].available_users.push(username);
+        }
+        console.log("user availability for " + username + "should be updated.");
+        console.log("meet.slots slot at time" + meet.slots[i] + " with attendees " + meet.attendees);
+        break;
+      }
+    }
 
-    console.log("user availability for " + username + "should be updated.");
-    console.log("meet.slots: " + meet.slots);
-    console.log("meet.attendees: " + meet.attendees);
 
     meet.save({}, function() {
       return response.status(200).end();
@@ -256,11 +261,6 @@ app.post('/attendee/:id', function(request, response) {
 
 }); 
 
-
-//[ADD]
-function updateSlots(eventArr, un, avail, dateChange) {
-
-}
 
 /*
  * Quick fix for hashbang issue

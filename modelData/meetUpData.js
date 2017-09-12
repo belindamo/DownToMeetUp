@@ -1,5 +1,7 @@
 "use strict";
 
+//test data for webserver
+
 (function() {
 
 	//fake test Schema
@@ -9,26 +11,33 @@
 	  _id: "57231f1b30e4351f4e9f4bf6"
 	}; 
 
-	//init calendars. calendars won't have this id.
-	var calendar1 = {username: "Janel"};
-	var calendar2 = {username: "Belinda"};
-	var calendar3 = {username: "Catherine"};
-	var calendar4 = {username: "Talbot"};
-	var calendar5 = {username: "Cenobio"};
-	var calendar6 = {username: "Tony"};
-	var calendar7 = {username: "Thomas"};
-	var calendar8 = {username: "Emily"};
-	var calendar9 = {username: "Ann"};
-	var calendar10 = {username: "Beach party"}; //meetup1
-	var calendar11 = {username: "Study Session"}; //meetup2
-	var calendar12 = {username: "Okada meeting"}; //meetup3
+	// //init attendees. attendees won't have this id.
+	// var attendee1 = {username: "Janel"};
+	// var attendee2 = {username: "Belinda"};
+	// var attendee3 = {username: "Catherine"};
+	// var attendee4 = {username: "Talbot"};
+	// var attendee5 = {username: "Cenobio"};
+	// var attendee6 = {username: "Tony"};
+	// var attendee7 = {username: "Thomas"};
+	// var attendee8 = {username: "Emily"};
+	// var attendee9 = {username: "Ann"};
+	// var attendee10 = {username: "Beach party"}; //meetup1
+	// var attendee11 = {username: "Study Session"}; //meetup2
+	// var attendee12 = {username: "Okada meeting"}; //meetup3
 
-	var calendars = [calendar1, calendar2, calendar3, calendar4, calendar5, calendar6, calendar7, calendar8, calendar9, calendar10, calendar11, calendar12];
+	// var attendees = [attendee1, attendee2, attendee3, attendee4, attendee5, attendee6, attendee7, attendee8, attendee9, attendee10, attendee11, attendee12];
 
+	// //create slots, attendees
+
+	// //meetUp1 slots and attendees
+	// var slots1;
+	// var attendees1;
 	//init meetups
-	var meetUp1 = {name: "Beach party", date_start: "2017-08-17 00:00:00", date_end: "2017-08-30 00:00:00", time_start: "2017-08-17 17:00:00", time_end: "2017-08-17 22:00:00", main_calendar: calendar10, user_calendars: [calendar1, calendar2, calendar3]};
-	var meetUp2 = {name: "Study Session", date_start: "2017-09-01 00:00:00", date_end: "2017-09-05 00:00:00", time_start: "2017-09-01 09:00:00", time_end: "2017-09-01 18:00:00", main_calendar: calendar11, user_calendars: [calendar4, calendar5]};
-	var meetUp3 = {name: "Okada meeting", date_start: "2017-10-11 00:00:00", date_end: "2017-10-30 00:00:00", time_start: "2017-10-11 15:15:00", time_end: "2017-10-11 18:45:00", main_calendar: calendar12, user_calendars: [calendar6, calendar7, calendar8, calendar9]};
+
+	//IMPORTANT: hopefully this is what iso string looks like?
+	var meetUp1 = {name: "Beach party", cal_start: "2017-08-17 17:00:00", cal_end: "2017-08-30 22:00:00", description: "location at Half Moon Bay. We'll also need to double check weather just in case"};
+	var meetUp2 = {name: "Study Session", cal_start: "2017-09-01 09:00:00", cal_end: "2017-09-05 18:00:00", description:"I can't wait to study ! ! !"};
+	var meetUp3 = {name: "Okada House meeting", cal_start: "2017-10-11 15:15:00", cal_end: "2017-10-30 18:45:00", description: ""};
 
 	var meetUps = [meetUp1, meetUp2, meetUp3];
 

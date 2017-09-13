@@ -8,7 +8,7 @@
 	<md-button class="md-raised" id="signout-button" style="display: none;">Sign Out</md-button>
 	<md-button class="md-raised" id="no-button" ng-click="otherSignIn=true"> No thanks </md-button>
 
-	<div ng-show="otherSignIn">
+<!-- 	<div ng-show="otherSignIn">
 		<div style="margin: auto; text-align: center;">
 			<md-input-container>
 				<label>Your Name</label>
@@ -20,11 +20,22 @@
 				<input type="text" name="password" ng-model="pass">
 			</md-input-container>
 		</div>
-	</div>
+	</div> -->
 	
 	<div style="margin: auto; text-align: center;">
 		<md-button class="md-raised" ng-click="main.addUser()">Sign in</md-button>
 	</div>
-</div>
+
 
 <pre id="content"></pre>
+</div>
+<md-toolbar>
+	<span>Meet Up Name Here</span>
+	<span ng-if="main.signedInDTMU">Hello, {{main.userN}}</span>
+</md-toolbar>
+
+<md-sidenav-container>
+</md-sidenav-container>
+<md-content>
+	<div id='my-calendar'></div>
+</md-content>

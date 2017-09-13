@@ -30,10 +30,45 @@ dtmuApp.controller('HomeController', ['$scope', '$location', '$resource', 'ngDia
 	        	$scope.main.info["endTime"] = $('#end').timepicker('getTime', startDate);
 
 	        	// TODO janel: Date objects --> cal_start and cal_end by using toISOString()
-	        	// TODO ellen general_cal_events
+	        	var calStart = new Date("2017-09-01T09:00:00Z"); //Placeholder
+	        	var calEnd = new Date("2017-09-02T10:00:00Z");  //Placeholder
+	        	// TODO ellen slots
+
+	        	//Generating slot times using start day...
+	        	var slotTimes = [];
+	        	var startTimeMoment = moment(calStart);
+	        	var endTimeMoment = startTimeMoment.clone();
+	        	endTimeMoment.set('hour', calEnd.getHours()).set('minute', calEnd.getMinutes()).set('second', calEnd.getSeconds());
+
+	        	var currentTimeMoment = startTimeMoment.clone();
+	        	while (currentTimeMoment.isBefore(endTimeMoment)) {
+	        		slotTimes.push(currentTimeMoment.clone());
+	        		currentTimeMoment.add(moment.duration(15, 'minutes'));
+	        	}
+
+	        	//Generating rest of the slots for remaining days...
+	        	
+	        	var slots = [];
+	        	var xcludeBoundarySlot = moment(calEnd).add(moment.duration(1, 'days')).startOf('day');
+
+	        	while (slotTimes[0].isBefore(xcludeBoundarySlot)) {
+					for (var i = 0; i < slotTimes.length; i++) {
+		        		slotTimes[i].add(moment.duration(1, 'days'));
+		        		slots.push(slotTimes[i].clone().toISOString());
+		        	}
+	        	}
+
+	        	$scope.main.slots = slots;
+	        	
+	        	//Printing out slots...
+	        	console.log("# of slots: " + slotTimes.length);
+	        	for(var i = 0; i < slots.length; i++) {
+	        		console.log(slots[i]);
+	        	}
 
 	        	var newMeetUpRes = $resource("/meetUp");
-	        	$location.path("/meetUps/" + "1"); // will comment this out when backend is working
+	        	//$location.path("/meetUps/" + "1"); // will comment this out when backend is working
+	        	$location.path("/login");
 	        	newMeetUpRes.save($scope.main.info, function(meetUp) {
 	        		console.log(meetUp);
 	        		$rootScope.$broadcast('newMeetUp', meetUp);

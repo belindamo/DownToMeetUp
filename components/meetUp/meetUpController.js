@@ -1,8 +1,7 @@
 'use strict';
 
 dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$routeParams',
-		function ($scope, $location, $resource, $routeParams,) {
-			
+		function ($scope, $location, $resource, $routeParams) {
 			$scope.meetUp = {};
 
 			$scope.$on('$viewContentLoaded', function() {
@@ -131,17 +130,96 @@ dtmuApp.controller('MeetUpController', ['$scope', '$location', '$resource', '$ro
 			}
 
 			//belinda added stuff
+			//ellen here, moved below to login controller
+			// $scope.otherSignIn = false;
 
-			$scope.otherSignIn = false;
-
-			$scope.userN = "";
-			$scope.pass = "";
+			// $scope.userN = "";
+			// $scope.pass = "";
 
 
-			$scope.main.addUser = function() {
-				//post user data. currently just the username.
-				console.log($scope.userN);
-			};
+			// $scope.main.addUser = function() {
+			// 	//post user data. currently just the username.
+			// 	console.log($scope.userN);
+			// };
+
+
+			$(document).ready(function() {
+			    // page is now ready, initialize the calendar
+			    $('#my-calendar').fullCalendar({
+			    	header: {
+			    		left: 'title',
+			    		right: 'prev, next'
+			    	},
+			        defaultDate: '2017-08-28',		//*** start date
+			        defaultView: 'agendaWeek',
+			        editable: true,
+			        allDaySlot: false,
+			        slotDuration: '00:15:00',		//15 minute time intervals
+			        slotLabelInterval: '00:30:00',	//label every other increment
+			        snapDuration: '00:15:00',		//events will align to 15 minute internvals
+			        minTime: '09:00:00',			//*** start time
+			        maxTime: '12:00:00',			//*** end time
+			        validRange: {
+				        start: moment('2017-08-26'),
+				        end: moment('2017-08-31')
+				    },
+				    events: [
+				    	{
+				    		start: '2017-08-29T09:00:00',
+				            end: '2017-08-29T10:00:00',
+				            title: "Class"
+				    	},
+				    	{
+				            start: '2017-08-29T10:00:00',
+				            end: '2017-08-29T10:15:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T10:15:00',
+				            end: '2017-08-29T10:30:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T10:30:00',
+				            end: '2017-08-29T10:45:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T10:45:00',
+				            end: '2017-08-29T11:00:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T11:00:00',
+				            end: '2017-08-29T11:15:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T11:15:00',
+				            end: '2017-08-29T11:30:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T11:30:00',
+				            end: '2017-08-29T11:45:00',
+				            rendering: 'background',
+				        },
+				        {
+				            start: '2017-08-29T11:45:00',
+				            end: '2017-08-29T12:00:00',
+				            rendering: 'background',
+				        },
+				    ],
+
+				  //   eventClick: function(event) {
+				  //   	console.log(event)
+				  //       $("#my-calendar").fullCalendar('removeEvents', function(event) {
+				  //       	return true
+						// });
+				  //   }
+			    });
+
+			});
 
 		}]);
 
